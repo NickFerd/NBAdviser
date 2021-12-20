@@ -1,11 +1,12 @@
+"""Main script entry point"""
 
-from nbadviser import Handler
-from nbadviser import strategies
+from nbadviser import bot
+from nbadviser.config import Config
 
 
 def main():
-    handler = Handler(strategies)
-    handler.run()
+    config = Config()
+    bot.run(config=config)
 
 
 if __name__ == '__main__':
