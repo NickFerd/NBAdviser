@@ -1,12 +1,11 @@
 """Main script entry point"""
 
 from nbadviser import bot
-from nbadviser.config import Config
+from nbadviser import config
 
 
 def main():
-    config = Config()
-    bot.run(config=config)
+    bot.run(token=config.TOKEN)
 
 
 if __name__ == '__main__':

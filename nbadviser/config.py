@@ -3,7 +3,7 @@
 
 import os
 
+from loguru import logger
 
-class Config:
-    TOKEN = os.environ['NBADVISER_TOKEN']
+TOKEN = os.environ['NBADVISER_TOKEN']
 

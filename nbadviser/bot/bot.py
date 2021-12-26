@@ -4,10 +4,10 @@ from telegram.ext import Updater, CommandHandler
 from nbadviser.bot import bot_handlers
 
 
-def run(config):
+def run(token: str):
     """Initializing of tg bot"""
 
-    updater = Updater(token=config.TOKEN)
+    updater = Updater(token=token)
     dispatcher = updater.dispatcher
 
     # Adding handlers

@@ -5,6 +5,7 @@ from collections import defaultdict
 from typing import Callable
 
 from nba_api.stats.endpoints.scoreboardv2 import ScoreboardV2
+from nbadviser.logics.utils import Recommendation, GameAbstract
 
 # Easy initialization and registration of strategies
 strategies = {}
@@ -29,7 +30,7 @@ class StrategyBase(ABC):
         raise NotImplementedError('You are calling method on ABC base class')
 
     @abstractmethod
-    def execute_strategy(self):
+    def execute(self) -> Recommendation:
         """Mandatory method that holds logic of choosing games and
         interaction with nba_api
         """
@@ -38,12 +39,12 @@ class StrategyBase(ABC):
 
 @register_strategy
 class CloseGameStrategy(StrategyBase):
-    """Chooses closest by score games from previous from today game day"""
+    """Chooses top closest by score games from previous game day"""
     title = 'Близкие по счету игры'
-    days_offset = -1  # Previous from today game day
+    days_offset = -1  # Previous game day
     game_id_index = 2
 
-    def execute_strategy(self):  # todo add what function returns
+    def execute(self) -> Recommendation:
         """Chooses closest game for the previous game day
         First, we create dict of games for that day and fill info about game
             and teams playing
@@ -76,21 +77,19 @@ class CloseGameStrategy(StrategyBase):
         score_gaps = defaultdict(list)
         # determine closest game/games
         for game in games.values():
-            print(game)
-            gap = game.score_gap
-            score_gaps[gap].append(game)
+            if game.status == 3:  # Only finished games
+                gap = game.score_gap
+                score_gaps[gap].append(game)
 
         min_gap = min(score_gaps.keys())
         games = score_gaps[min_gap]
-        output = []
-        for game in games:
-            output.append(f'{game.home_team_name} - {game.visitor_team_name}, '
-                          f'Разница в счете {game.score_gap}')
-
-        return output
+        recommendation = Recommendation(title=self.title,
+                                        games=games)
+        print(recommendation)
+        return recommendation
 
 
-class Game:
+class Game(GameAbstract):
     def __init__(self, **kwargs):
         self.home_team_name = 'Undefined'
         self.home_team_score = float('nan')
@@ -133,3 +132,15 @@ class Game:
     def score_gap(self):
         return abs(self.home_team_score - self.visitor_team_score)
 
+    @property
+    def description(self):
+        return f'{self.home_team_name} - {self.visitor_team_name}, ' \
+               f'Разница в счете {self.score_gap}'
+
+
+# @register_strategy
+# class NewStrategy(StrategyBase):
+#     title = 'New fancy strategy'
+#
+#     def execute(self):
+#         raise RuntimeError('testing error handling')
