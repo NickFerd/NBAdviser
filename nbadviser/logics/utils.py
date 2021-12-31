@@ -17,7 +17,7 @@ class GameAbstract(ABC):
 
 @dataclass
 class Recommendation:
-    """Strategy output"""
+    """Result of method execute() of any strategy"""
     title: str
     games: List[GameAbstract]
 
@@ -25,7 +25,7 @@ class Recommendation:
         """Format output as HTML"""
         template = f'<b><u>{self.title}</u></b>\n'
         for game in self.games:
-            template += f'\t{game.description}\n'
+            template += f'\t\t{game.description}\n'
 
         return template
 
@@ -40,15 +40,18 @@ class Recommendations:
     """Class holding all recommendations"""
 
     def __init__(self, recommendations: Optional[List[Recommendation]] = None):
-        self._rc = recommendations or list()
+        self.contents = recommendations or list()
 
     def append(self, item: Recommendation):
-        self._rc.append(item)
+        self.contents.append(item)
 
     def to_html(self):
+        if not self.contents:
+            return 'Не удалось подобрать игры'  # todo rename
+
         template = ''
-        for strategy_result in self._rc:
-            template += strategy_result.to_html()
+        for recommendation in self.contents:
+            template += recommendation.to_html()
 
         return template
 
@@ -58,4 +61,5 @@ class Error:
     """Error holding class"""
     exception: Exception
     traceback: str
+    label: str
 

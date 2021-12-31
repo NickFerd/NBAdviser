@@ -85,7 +85,6 @@ class CloseGameStrategy(StrategyBase):
         games = score_gaps[min_gap]
         recommendation = Recommendation(title=self.title,
                                         games=games)
-        print(recommendation)
         return recommendation
 
 
@@ -138,9 +137,9 @@ class Game(GameAbstract):
                f'Разница в счете {self.score_gap}'
 
 
-# @register_strategy
-# class NewStrategy(StrategyBase):
-#     title = 'New fancy strategy'
-#
-#     def execute(self):
-#         raise RuntimeError('testing error handling')
+@register_strategy
+class NewStrategy(StrategyBase):
+    title = 'New fancy strategy'
+
+    def execute(self):
+        raise RuntimeError('testing error handling')

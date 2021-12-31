@@ -25,6 +25,7 @@ class Adviser:
         Collect errors if strategy fails and continue with the next strategy.
         Done this way so that we could handle later this error but also execute
         rest of the strategies.
+        Error handling happens on client side
         """
         recommendations = Recommendations()
         errors = []
@@ -34,10 +35,10 @@ class Adviser:
                 recommendations.append(recommendation)
             except Exception as err:
                 errors.append(Error(exception=err,
-                                    traceback=traceback.format_exc()))
+                                    traceback=traceback.format_exc(),
+                                    label=strategy.__class__.__name__))
 
         return recommendations, errors
-
 
 
 adviser = Adviser(registered_strategies=strategies)
