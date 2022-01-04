@@ -5,7 +5,7 @@ from collections import defaultdict
 from typing import Callable
 
 from nba_api.stats.endpoints.scoreboardv2 import ScoreboardV2
-from nbadviser.logics.utils import Recommendation, GameAbstract
+from nbadviser.logics.utils import Recommendation, GameBase
 
 # Easy initialization and registration of strategies
 strategies = {}
@@ -88,7 +88,7 @@ class CloseGameStrategy(StrategyBase):
         return recommendation
 
 
-class Game(GameAbstract):
+class Game(GameBase):
     def __init__(self, **kwargs):
         self.home_team_name = 'Undefined'
         self.home_team_score = float('nan')
@@ -136,10 +136,3 @@ class Game(GameAbstract):
         return f'{self.home_team_name} - {self.visitor_team_name}, ' \
                f'Разница в счете {self.score_gap}'
 
-
-@register_strategy
-class NewStrategy(StrategyBase):
-    title = 'New fancy strategy'
-
-    def execute(self):
-        raise RuntimeError('testing error handling')

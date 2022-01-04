@@ -20,7 +20,9 @@ def configure_log_filename():
 
 
 TOKEN = os.environ['NBADVISER_TOKEN']
-CONTROL_CHAT_ID = os.environ['NBADVISER_CONTROL_CHAT_ID']
+SEND_ON_ERROR = True
+if SEND_ON_ERROR:
+    CONTROL_CHAT_ID = os.environ['NBADVISER_CONTROL_CHAT_ID']
 
 LOG_FILENAME = configure_log_filename()
 LOG_LEVEL = 'INFO'

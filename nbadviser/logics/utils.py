@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 
-class GameAbstract(ABC):
+class GameBase(ABC):
     """Represents one game"""
 
     @property
@@ -19,7 +19,7 @@ class GameAbstract(ABC):
 class Recommendation:
     """Result of method execute() of any strategy"""
     title: str
-    games: List[GameAbstract]
+    games: List[GameBase]
 
     def to_html(self):
         """Format output as HTML"""
@@ -47,7 +47,7 @@ class Recommendations:
 
     def to_html(self):
         if not self.contents:
-            return 'Не удалось подобрать игры'  # todo rename
+            return 'Не удалось подобрать игры'
 
         template = ''
         for recommendation in self.contents:
