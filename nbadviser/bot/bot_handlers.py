@@ -12,14 +12,15 @@ from nbadviser.logics.adviser import Errors
 
 def get_recommendations(update: Update, context: CallbackContext) -> None:
     """Handler for making recommendations"""
-    update.message.reply_text(
-        f'Подбираю интересные игры прошедшего игрового дня...🏀')
+
+    msg = update.message.reply_text(
+        f'Подбираю интересные матчи прошедшего игрового дня...🏀'
+    )
 
     recommendations, errors = adviser.get_recommendations()
     handle_strategies_errors(context, errors)
 
-    update.message.reply_text(recommendations.to_html(),
-                              parse_mode=ParseMode.HTML)
+    msg.edit_text(recommendations.to_html(), parse_mode=ParseMode.HTML)
 
 
 def error_handler(update: Update, context: CallbackContext) -> None:

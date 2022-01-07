@@ -3,6 +3,7 @@
 
 import os
 import platform
+import pytz
 from loguru import logger
 
 
@@ -30,3 +31,5 @@ LOG_ROTATION = '1 week'
 LOR_RETENTION = '1 month'
 logger.add(sink=LOG_FILENAME, level=LOG_LEVEL, rotation=LOG_ROTATION,
            retention=LOR_RETENTION)
+
+ETC_TIMEZONE = pytz.timezone('US/Eastern')

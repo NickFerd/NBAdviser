@@ -7,7 +7,8 @@ from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext
 
 from nba_api.live.nba.endpoints import scoreboard, boxscore
-from nba_api.stats.endpoints import leaguegamelog, leaguegamefinder, scoreboardv2
+from nba_api.stats.endpoints import leaguegamelog, leaguegamefinder, \
+    scoreboardv2, LeagueDashTeamClutch
 from nba_api.stats.library.parameters import GameDate
 
 
@@ -56,30 +57,51 @@ def nba_api():
     # pprint(dir(box_score))
 
     # Games log
-    # games_log = leaguegamelog.LeagueGameLog(date_from_nullable='2021-12-12')
+    # games_log = leaguegamelog.LeagueGameLog(date_from_nullable='2022-01-03')
     # games = games_log.league_game_log.get_dict()
     # print(games['headers'])
     # pprint(games)
 
-    scoreboard_for_yesterday = scoreboardv2.ScoreboardV2(day_offset=-1)
-    print(dir(scoreboard_for_yesterday))
-    pprint(scoreboard_for_yesterday.get_dict(), indent=1)
-    score = scoreboard_for_yesterday.available.get_dict()
-    pprint(score)
-    scores = scoreboard_for_yesterday.line_score.get_dict()
-    games_status = scoreboard_for_yesterday.game_header.get_dict()
-    pprint(games_status)
-    game = scores['data'][0]
-    print('All games - ', len(scores['data']))
-    headers = scores['headers']
-    matches = {}
-    for header, value in zip(headers, game):
-        print(header, value)
+    # scoreboard_for_yesterday = scoreboardv2.ScoreboardV2(game_date='2022-01-03')
+    # print(dir(scoreboard_for_yesterday))
+    # pprint(scoreboard_for_yesterday.get_dict(), indent=1)
+    league_clutch = LeagueDashTeamClutch(
+        date_from_nullable='2022-01-03'
+    )
+    print(dir(league_clutch))
+    pprint(league_clutch.league_dash_team_clutch.get_dict())
+    pprint(league_clutch.team_stats.get_dict())
+    # score = scoreboard_for_yesterday.available.get_dict()
+    # pprint(score)
+    # scores = scoreboard_for_yesterday.line_score.get_dict()
+    # games_status = scoreboard_for_yesterday.game_header.get_dict()
+    # pprint(games_status)
+    # game = scores['data'][0]
+    # print('All games - ', len(scores['data']))
+    # headers = scores['headers']
+    # matches = {}
+    # for header, value in zip(headers, game):
+    #     print(header, value)
 
 
+def timezones():
+    import datetime
+    import pytz
+
+    etc = pytz.timezone('US/Eastern')
+    print(etc)
+    naive_dt = datetime.datetime.now()
+    print(naive_dt)
+    now_est = naive_dt.astimezone(etc)
+    print(now_est)
+    print(str(now_est))
+    print(now_est.date())
+    noe_est_date = now_est.date()
+    print(str(noe_est_date))
+    print(type(str(noe_est_date)))
 
 
 if __name__ == '__main__':
     # main()
-    nba_api()
-
+    # nba_api()
+    timezones()

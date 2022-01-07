@@ -12,7 +12,7 @@ def run(token: str):
     dispatcher = updater.dispatcher
 
     # Adding handlers
-    dispatcher.add_handler(CommandHandler('run',
+    dispatcher.add_handler(CommandHandler('top',
                                           bot_handlers.get_recommendations))
     dispatcher.add_error_handler(error_handler)
 

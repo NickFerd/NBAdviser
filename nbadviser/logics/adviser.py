@@ -1,11 +1,9 @@
 """File containing class for managing strategies
 """
 import traceback
-
-from nbadviser import strategies
-
 from typing import Dict, List, Tuple
 
+from nbadviser import strategies
 from nbadviser.logics.strategies import StrategyBase
 from nbadviser.logics.utils import Error, Recommendations
 
@@ -14,7 +12,7 @@ Advise = Tuple[Recommendations, Errors]
 
 
 class Adviser:
-    """Class for managing strategies and producing output
+    """Class for managing strategies
     """
     def __init__(self, registered_strategies: Dict[str, StrategyBase]):
         self._strategies = registered_strategies
