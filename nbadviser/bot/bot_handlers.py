@@ -1,20 +1,36 @@
 """Callback function for bot handlers"""
 import traceback
 
-from telegram import Update, ParseMode
+from telegram import Update, ParseMode, ReplyKeyboardMarkup
 from telegram.ext import CallbackContext
 
-from nbadviser import adviser
-from nbadviser import config
+from nbadviser import adviser, config
 from nbadviser.config import logger
 from nbadviser.logics.adviser import Errors
+
+BUTTON = "Топ матчи игрового дня 🏀"
+
+
+def start(update: Update, context: CallbackContext):
+    """Entry point to menu"""
+    keyboard = [
+        [BUTTON]
+    ]
+    message = 'Подберу интересные матчи прошедшего игрового дня, ' \
+              'не раскрывая счета!\n' \
+              'Нажми на кнопку ниже или введи команду /top'
+    update.message.reply_text(
+        message,
+        reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True,
+                                         resize_keyboard=True)
+    )
 
 
 def get_recommendations(update: Update, context: CallbackContext) -> None:
     """Handler for making recommendations"""
 
     msg = update.message.reply_text(
-        f'Подбираю интересные матчи прошедшего игрового дня...🏀'
+        f'Идет отбор игр...'
     )
 
     recommendations, errors = adviser.get_recommendations()

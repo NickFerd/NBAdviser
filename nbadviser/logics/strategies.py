@@ -40,21 +40,25 @@ class StrategyBase(ABC):
 
 @register_strategy
 class CloseGameStrategy(StrategyBase):
-    """Chooses top 2 closest by score games from previous game day"""
+    """Chooses top X closest by score games from previous game day
+    Score gap has to be equal or lower than min_gap attribute"""
     title = 'Напряженная концовка 🔥'
 
     game_id_index = 2
     finished_game_status = 3
     min_gap = 6  # Min value of score gap for game to be recommended
+    top_games = 2  # Top 2 closest by score games
 
     def execute(self) -> Recommendation:
-        """Chooses closest game for the previous game day
-        First, we create dict of games for that day and fill info about game
+        """First, we create dict of games for that day and fill info about game
             and teams playing
         Second, fill scores for every game and team and calculate score gaps
         """
         game_date_str = get_yesterday_est()
         all_games = {}
+
+        recommendation = Recommendation(title=self.title,
+                                        games=None)
 
         # Get raw information from nba_api
         scoreboard_for_yesterday = ScoreboardV2(game_date=game_date_str)
@@ -79,29 +83,21 @@ class CloseGameStrategy(StrategyBase):
             game_inst.fill_score_and_team_name(**dict(zip(headers,
                                                           one_team_score)))
         score_gaps = defaultdict(list)
-        # determine closest game/games
+        # collect score gaps from all finished games of the day
         for game in all_games.values():
             if game.status == self.finished_game_status:  # Only finished games
                 gap = game.score_gap
                 score_gaps[gap].append(game)
 
-        min_gap = min(score_gaps.keys())
+        # choose top games
+        gaps = sorted(score_gaps.keys())[:self.top_games]
+        close_games = []
+        for gap in gaps:
+            if gap >= self.min_gap:
+                continue
+            close_games.extend(score_gaps[gap])
 
-        # Only really close games
-        if min_gap > self.min_gap:
-            return Recommendation(title=self.title,
-                                  games=None)
+        recommendation.games = close_games
 
-        closest_games = score_gaps[min_gap]
-        score_gaps.pop(min_gap)
-
-        # ---------
-        min_gap = min(score_gaps.keys())
-        if min_gap <= self.min_gap:
-            closest_games.extend(score_gaps[min_gap])
-            score_gaps.pop(min_gap)
-
-        recommendation = Recommendation(title=self.title,
-                                        games=closest_games)
         return recommendation
 
