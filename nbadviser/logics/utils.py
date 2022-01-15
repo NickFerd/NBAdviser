@@ -55,19 +55,27 @@ class Recommendation:
 class Recommendations:
     """Class holding all recommendations"""
 
-    def __init__(self, recommendations: Optional[List[Recommendation]] = None):
-        self.contents = recommendations or list()
+    def __init__(self, recommendations: Optional[List[Recommendation]] = None,
+                 parameters: Optional[dict] = None):
+        self._contents = recommendations or list()
+        self._parameters = parameters or dict()
 
     def append(self, item: Recommendation):
-        self.contents.append(item)
+        self._contents.append(item)
 
     def to_html(self):
-        template = f'<i>Игровой день: {get_yesterday_est()}</i>\n'
-        if not self.contents:
+        specific_game_date = self._parameters.get('games_date')
+        if specific_game_date:
+            games_date = specific_game_date
+        else:
+            games_date = get_yesterday_est()
+
+        template = f'<i>Игровой день: {games_date}</i>\n'
+        if not self._contents:
             template += 'Не удалось найти интересные игры'
             return template
 
-        for recommendation in self.contents:
+        for recommendation in self._contents:
             template += recommendation.to_html()
 
         return template

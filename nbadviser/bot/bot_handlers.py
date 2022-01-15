@@ -5,6 +5,7 @@ from telegram import Update, ParseMode, ReplyKeyboardMarkup
 from telegram.ext import CallbackContext
 
 from nbadviser import adviser, config
+from nbadviser.bot.utils import check_format
 from nbadviser.config import logger
 from nbadviser.logics.adviser import Errors
 
@@ -33,6 +34,15 @@ def get_recommendations(update: Update, context: CallbackContext) -> None:
         f'Идет отбор игр...'
     )
 
+    games_date = None
+    if context.args:
+        games_date_unchecked = context.args[0]  # Always look at first argument
+        if check_format(games_date_unchecked):
+            games_date = games_date_unchecked
+
+    # Set additional parameters
+    adviser.set_parameters(games_date=games_date)
+
     recommendations, errors = adviser.get_recommendations()
     handle_strategies_errors(context, errors)
 
@@ -41,6 +51,11 @@ def get_recommendations(update: Update, context: CallbackContext) -> None:
 
 def error_handler(update: Update, context: CallbackContext) -> None:
     """Handle errors, that happen outside of executing strategies"""
+
+    # Message to client
+    update.message.reply_text("К сожалению, произошла ошибка.")
+
+    # Logging and alerting control chat
     tb = traceback.format_tb(context.error.__traceback__)
     tb = ''.join(tb)
 

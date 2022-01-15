@@ -31,7 +31,7 @@ class StrategyBase(ABC):
         raise NotImplementedError('You are calling method on ABC base class')
 
     @abstractmethod
-    def execute(self) -> Recommendation:
+    def execute(self, **kwargs) -> Recommendation:
         """Mandatory method that holds logic of choosing games and
         interaction with nba_api
         """
@@ -49,16 +49,26 @@ class CloseGameStrategy(StrategyBase):
     min_gap = 6  # Min value of score gap for game to be recommended
     top_games = 2  # Top 2 closest by score games
 
-    def execute(self) -> Recommendation:
+    def execute(self, **kwargs) -> Recommendation:
         """First, we create dict of games for that day and fill info about game
             and teams playing
         Second, fill scores for every game and team and calculate score gaps
+        -----
+        Optional keyword argument - games_date (str in format YYYY-MM-DD)
+         to set specific date
+
         """
-        game_date_str = get_yesterday_est()
+        specific_date = kwargs.get('games_date')
+        if specific_date:
+            game_date_str = specific_date
+        else:
+            game_date_str = get_yesterday_est()
+
         all_games = {}
 
         recommendation = Recommendation(title=self.title,
-                                        games=None)
+                                        games=None,
+                                        )
 
         # Get raw information from nba_api
         scoreboard_for_yesterday = ScoreboardV2(game_date=game_date_str)
