@@ -9,13 +9,15 @@ from nbadviser.bot.utils import check_format
 from nbadviser.config import logger
 from nbadviser.logics.adviser import Errors
 
-BUTTON = "Топ матчи игрового дня 🏀"
+BUTTON = "Топовые матчи игрового дня 🏀"
+HELP_BUTTON = "Помощь"
 
 
 def start(update: Update, context: CallbackContext):
     """Entry point to menu"""
     keyboard = [
-        [BUTTON]
+        [BUTTON],
+        [HELP_BUTTON]
     ]
     message = 'Подберу интересные матчи прошедшего игрового дня, ' \
               'не раскрывая счета!\n' \
@@ -25,6 +27,16 @@ def start(update: Update, context: CallbackContext):
         reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True,
                                          resize_keyboard=True)
     )
+
+
+def help_handler(update: Update, context: CallbackContext):
+    """Help button and command /help handler"""
+    msg = '<b>NBAdviser</b> - бот, который поможет ' \
+          'тебе выбрать интересную игру\n\n' \
+          '<b>/top</b> - рекомендации за последний игровой день\n' \
+          '<b>/top 2022-01-12</b>  - за конкретный день'
+
+    update.message.reply_text(msg, parse_mode=ParseMode.HTML)
 
 
 def get_recommendations(update: Update, context: CallbackContext) -> None:

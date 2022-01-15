@@ -18,9 +18,14 @@ def run(token: str):
         MessageHandler(Filters.regex(f'^{bot_handlers.BUTTON}$'),
                        bot_handlers.get_recommendations)
     )
-    # Вторая точка входа для получения рекомендаций
+    dispatcher.add_handler(
+        MessageHandler(Filters.regex(f'^{bot_handlers.HELP_BUTTON}'),
+                       bot_handlers.help_handler)
+    )
     dispatcher.add_handler(CommandHandler('top',
                                           bot_handlers.get_recommendations))
+    dispatcher.add_handler(CommandHandler('help',
+                                          bot_handlers.help_handler))
     dispatcher.add_error_handler(error_handler)
 
     # Starting Bot
