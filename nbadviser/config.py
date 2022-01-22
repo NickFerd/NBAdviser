@@ -16,15 +16,20 @@ def configure_log_filename():
         if not os.path.exists(log_path):
             os.mkdir(log_path)
     else:
-        log_path = ''  # fixme
+        log_path = '/var/log/nbadviser/'
     return log_path + log_filename
 
 
+# Environment
 TOKEN = os.environ['NBADVISER_TOKEN']
-SEND_ON_ERROR = True
-if SEND_ON_ERROR:
+try:
     CONTROL_CHAT_ID = os.environ['NBADVISER_CONTROL_CHAT_ID']
+except KeyError:
+    SEND_ON_ERROR = False
+else:
+    SEND_ON_ERROR = True
 
+# Logging
 LOG_FILENAME = configure_log_filename()
 LOG_LEVEL = 'INFO'
 LOG_ROTATION = '1 week'

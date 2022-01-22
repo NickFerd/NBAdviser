@@ -40,13 +40,13 @@ class StrategyBase(ABC):
 
 @register_strategy
 class CloseGameStrategy(StrategyBase):
-    """Chooses top X closest by score games from previous game day
-    Score gap has to be equal or lower than min_gap attribute"""
+    """Chooses top X closest by score games from chosen game day
+    Score gap has to be equal or lower than allowed_gap attribute"""
     title = 'Напряженная концовка 🔥'
 
     game_id_index = 2
     finished_game_status = 3
-    min_gap = 6  # Min value of score gap for game to be recommended
+    allowed_gap = 6  # Min value of score gap for game to be recommended
     top_games = 2  # Top 2 closest by score games
 
     def execute(self, **kwargs) -> Recommendation:
@@ -67,8 +67,7 @@ class CloseGameStrategy(StrategyBase):
         all_games = {}
 
         recommendation = Recommendation(title=self.title,
-                                        games=None,
-                                        )
+                                        games=None)
 
         # Get raw information from nba_api
         scoreboard_for_yesterday = ScoreboardV2(game_date=game_date_str)
@@ -103,7 +102,7 @@ class CloseGameStrategy(StrategyBase):
         gaps = sorted(score_gaps.keys())[:self.top_games]
         close_games = []
         for gap in gaps:
-            if gap >= self.min_gap:
+            if gap > self.allowed_gap:
                 continue
             close_games.extend(score_gaps[gap])
 
