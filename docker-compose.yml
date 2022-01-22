@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  nbadviser:
+    build: .
+    env_file:
+      - .env
+    volumes:
+      - /var/log/nbadviser/:/var/log/nbadviser
+    restart: always
