@@ -14,7 +14,7 @@ Of course, it needs a token for startup. Create an .env txt file with the follow
 NBADVISER_TOKEN=<your_token>
 NBADVISER_CONTROL_CHAT_ID=<chat_id>
 ```
-Control chat id is optional to get messages in telegram if errors happens.
+Control chat id is optional to get messages in telegram if errors happen.
 
 Then simply run:  
 `docker-compose up -d`
