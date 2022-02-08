@@ -1,7 +1,7 @@
 """File containing class for managing strategies
 """
 import traceback
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional, Any
 
 from nbadviser import strategies
 from nbadviser.logics.strategies import StrategyBase
@@ -49,6 +49,11 @@ class Adviser:
         if kwargs:
             for key, value in kwargs.items():
                 self._parameters[key] = value
+
+    def del_parameter(self, key) -> Optional[Any]:
+        """Delete parameter
+        :returns value if was set"""
+        return self._parameters.pop(key, None)
 
 
 adviser = Adviser(registered_strategies=strategies)
