@@ -1,4 +1,5 @@
 """Callback function for bot handlers"""
+
 import traceback
 
 from telegram import Update, ParseMode, ReplyKeyboardMarkup
@@ -34,7 +35,8 @@ def help_handler(update: Update, context: CallbackContext):
     msg = '<b>NBAdviser</b> - бот, который поможет ' \
           'тебе выбрать интересную игру\n\n' \
           '<b>/top</b> - рекомендации за последний игровой день\n' \
-          '<b>/top 2022-01-12</b>  - за конкретный день'
+          '<b>/top 2022-01-12</b>  - за конкретный день\n\n' \
+          'Обратная связь: https://t.me/NickFerd'
 
     update.message.reply_text(msg, parse_mode=ParseMode.HTML)
 
