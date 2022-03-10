@@ -3,17 +3,14 @@
 """
 from pprint import pprint
 
-from operator import attrgetter
 
 import requests
-import m3u8
-import m3u8_To_MP4
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext
 
-from nba_api.live.nba.endpoints import scoreboard, boxscore
 from nba_api.stats.endpoints import leaguegamelog, leaguegamefinder, \
-    scoreboardv2, LeagueDashTeamClutch
+    scoreboardv2, LeagueDashTeamClutch, BoxScoreFourFactorsV2, CumeStatsPlayer, \
+    GameRotation, BoxScorePlayerTrackV2
 from nba_api.stats.library.parameters import GameDate
 
 
@@ -55,7 +52,7 @@ def nba_api():
     # print(game_dates)
     # pprint(games)
     # pprint(dir(games))
-    # print('--------')
+    print('--------')
     #
     # box_score = boxscore.BoxScore('0022000196')
     # pprint(box_score.game.get_dict())
@@ -67,16 +64,10 @@ def nba_api():
     # print(games['headers'])
     # pprint(games)
 
-    # scoreboard_for_yesterday = scoreboardv2.ScoreboardV2(
-    # game_date='2022-01-03')
+    # scoreboard_for_yesterday = scoreboardv2.ScoreboardV2(game_date='2022-03-07')
     # print(dir(scoreboard_for_yesterday))
     # pprint(scoreboard_for_yesterday.get_dict(), indent=1)
-    league_clutch = LeagueDashTeamClutch(
-        date_from_nullable='2022-01-03'
-    )
-    print(dir(league_clutch))
-    pprint(league_clutch.league_dash_team_clutch.get_dict())
-    pprint(league_clutch.team_stats.get_dict())
+    #
     # score = scoreboard_for_yesterday.available.get_dict()
     # pprint(score)
     # scores = scoreboard_for_yesterday.line_score.get_dict()
@@ -88,6 +79,26 @@ def nba_api():
     # matches = {}
     # for header, value in zip(headers, game):
     #     print(header, value)
+
+    # league_clutch = LeagueDashTeamClutch(
+    #     date_from_nullable='2022-01-03'
+    # )
+    # print(dir(league_clutch))
+    # pprint(league_clutch.league_dash_team_clutch.get_dict())
+    # pprint(league_clutch.team_stats.get_dict())
+
+    # researching new endpoints
+    # nothing interesting
+    # box_score_four_factors = BoxScoreFourFactorsV2(game_id='0022100552')
+    # pprint(box_score_four_factors.get_dict())
+
+    # nothing
+    # game_rotation = GameRotation(game_id='0022100552')
+    # pprint(game_rotation.get_normalized_dict())
+
+    #
+    player_boxscore = BoxScorePlayerTrackV2(game_id='0022100552')
+    pprint(player_boxscore.get_normalized_dict())
 
 
 def timezones():
@@ -181,9 +192,9 @@ def alternative_data_providers():
 
 
 if __name__ == '__main__':
-    alternative_data_providers()
+    #alternative_data_providers()
     # video_highlights()
     # m3u8_converter()
     # main()
-    # nba_api()
+    nba_api()
     # timezones()

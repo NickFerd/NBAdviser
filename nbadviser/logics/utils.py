@@ -92,6 +92,7 @@ class Error:
 # --------------- Strategies helpers ---------------
 
 class Game(GameBase):
+    """Game object specific for CloseGameStrategy"""
     def __init__(self, **kwargs):
         self.home_team_name = 'Undefined'
         self.home_team_score = float('nan')
@@ -114,9 +115,13 @@ class Game(GameBase):
         team_name = f'{kwargs["TEAM_CITY_NAME"]} {kwargs["TEAM_NAME"]}'
         team_score = kwargs['PTS']
         if team_id == self.home_team_id:
-            self._fill_team_info('home', team_name, team_score)
+            prefix = 'home'
         elif team_id == self.visitor_team_id:
-            self._fill_team_info('visitor', team_name, team_score)
+            prefix = 'visitor'
+        else:
+            raise NameError(f'Incorrect input data while processing '
+                            f'teams scores')
+        self._fill_team_info(prefix, team_name, team_score)
 
     def _fill_team_info(self, prefix: str, team_name: str, team_score: int):
         setattr(self, f'{prefix}_team_name', team_name)
@@ -129,3 +134,21 @@ class Game(GameBase):
     @property
     def description(self):
         return f'{self.visitor_team_name} - {self.home_team_name}'
+
+
+class GameWithTopPerformanceInfo(Game):
+    """Game object with additional info about top performance of players"""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.top_performers = []
+
+    def fill_player_performance(self, **kwargs):
+        player_name = kwargs.get('PTS_PLAYER_NAME')
+        pts = kwargs.get('PTS')
+        self.top_performers.append(f'{player_name} <b>{pts}</b> очк.')
+
+    @property
+    def description(self):
+        return f'{", ".join(self.top_performers)} ' \
+               f'(<i>{self.visitor_team_name} - {self.home_team_name}</i>)'
