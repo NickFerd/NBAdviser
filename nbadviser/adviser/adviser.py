@@ -4,8 +4,8 @@ import traceback
 from typing import Dict, List, Tuple, Optional, Any
 
 from nbadviser import strategies
-from nbadviser.logics.strategies import StrategyBase
-from nbadviser.logics.utils import Error, Recommendations
+from nbadviser.adviser.strategies import StrategyBaseABC
+from nbadviser.adviser.utils import Error, Recommendations
 
 Errors = List[Error]
 Advise = Tuple[Recommendations, Errors]
@@ -17,7 +17,8 @@ class Adviser:
     Additional parameters that can be set using method - set_parameters:
     - games_date (string in a format YYYY-MM-DD)
     """
-    def __init__(self, registered_strategies: Dict[str, StrategyBase]):
+
+    def __init__(self, registered_strategies: Dict[str, StrategyBaseABC]):
         self._strategies = registered_strategies
         self._parameters = dict()
 

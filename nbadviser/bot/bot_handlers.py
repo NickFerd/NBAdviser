@@ -6,9 +6,9 @@ from telegram import Update, ParseMode, ReplyKeyboardMarkup
 from telegram.ext import CallbackContext
 
 from nbadviser import adviser, config
+from nbadviser.adviser.adviser import Errors
 from nbadviser.bot.utils import check_format
 from nbadviser.config import logger
-from nbadviser.logics.adviser import Errors
 
 BUTTON = "Топовые матчи игрового дня 🏀"
 HELP_BUTTON = "Помощь"

@@ -4,11 +4,12 @@
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from functools import lru_cache
-from typing import Callable, Any
+from typing import Callable, Any, Dict, Type, Union
 
 from nba_api.stats.endpoints.scoreboardv2 import ScoreboardV2
-from nbadviser.logics.utils import Recommendation, Game, get_yesterday_est, \
-    GameBase, GameWithTopPerformanceInfo
+
+from nbadviser.adviser.utils import Recommendation, Game, get_yesterday_est, \
+    GameWithTopPerformanceInfo, Team, Teams
 
 # Easy initialization and registration of strategies
 strategies = {}
@@ -19,9 +20,9 @@ def register_strategy(strategy_class: Callable):
     strategies[strategy_class.__name__] = strategy_class()
 
 
-class StrategyBase(ABC):
+class StrategyBaseABC(ABC):
     """Base class for strategy
-    Only used with register_strategy decorator,
+    Strategies are used with register_strategy decorator,
     not intended to be called directly
     """
 
@@ -40,8 +41,8 @@ class StrategyBase(ABC):
         raise NotImplementedError('You are calling method on ABC base class')
 
     @abstractmethod
-    def get_raw_data_from_provider(self, **kwargs) -> Any:
-        """Get raw data from nba_api or any provider"""
+    def get_raw_data(self, **kwargs) -> Any:
+        """Get raw data from any provider"""
         raise NotImplementedError('You are calling method on ABC base class')
 
     @staticmethod
@@ -59,31 +60,70 @@ class StrategyBase(ABC):
         return params
 
 
-class ScoreboardDataMixin(StrategyBase, ABC):
+class ScoreboardDataMixin(StrategyBaseABC, ABC):
     """Class that implements getting raw data from ScoreboardV2
-    nba_api endpoint and common processing.
+    nba_api endpoint and common preprocessing.
     """
 
+    @staticmethod
     @lru_cache(maxsize=5)
-    def get_raw_data_from_provider(self, **kwargs) -> Any:
+    def get_raw_data(**kwargs) -> ScoreboardV2:
         """Get data from ScoreboardV2 endpoint"""
-
         game_date = kwargs.get('games_date_str')
         scoreboard = ScoreboardV2(game_date=game_date)
-
         return scoreboard
 
-    @staticmethod
-    def process_games_info(game_object: Callable, games_info: dict) -> dict:
-        """Create dict of all games from raw data"""
-        all_games = {}
-        headers = games_info['headers']
-        for one_game_info in games_info['data']:
-            # feed Game instances with all data returned from NBA API
-            one_game = game_object(**dict(zip(headers, one_game_info)))
-            all_games[one_game.game_id] = one_game
+    def preprocess_data(self,
+                        game_object: Type[Game], scoreboard: ScoreboardV2) \
+            -> Dict[str, Union[Game, GameWithTopPerformanceInfo]]:
+        """Create dict of all games instances for the day and fill with info
+        of team names and scores"""
+
+        all_games = self._collect_games(game_object=game_object,
+                                        scoreboard=scoreboard)
+        self._fill_name_and_score(all_games=all_games, scoreboard=scoreboard)
 
         return all_games
+
+    @staticmethod
+    def _collect_games(game_object: Type[Game],
+                       scoreboard: ScoreboardV2) -> Dict[str, Game]:
+        """"""
+        all_games = {}
+        _data = scoreboard.game_header.get_dict()
+        headers = _data['headers']
+        for game_data_list in _data['data']:
+            game_data_dict = dict(zip(headers, game_data_list))
+            game_id = game_data_dict['GAME_ID']
+            game_status = game_data_dict['GAME_STATUS_TEXT']
+            home_team = Team(team_id=game_data_dict['HOME_TEAM_ID'])
+            visitor_team = Team(team_id=game_data_dict['VISITOR_TEAM_ID'])
+            playing_teams = Teams(home=home_team, visitor=visitor_team)
+
+            game = game_object(game_id=game_id, game_status=game_status,
+                               teams=playing_teams)
+            all_games[game.game_id] = game
+
+        return all_games
+
+    @staticmethod
+    def _fill_name_and_score(all_games: Dict[str, Game],
+                             scoreboard: ScoreboardV2) -> None:
+        """Fill game instances with team names and scores"""
+        team_scores = scoreboard.line_score.get_dict()
+        headers = team_scores['headers']
+        for one_team_score in team_scores['data']:
+            score_dict = dict(zip(headers, one_team_score))
+            game_id = score_dict['GAME_ID']
+            team_name = f"{score_dict['TEAM_CITY_NAME']} " \
+                        f"{score_dict['TEAM_NAME']}"
+            team_id = score_dict['TEAM_ID']
+            score = score_dict['PTS']
+
+            game = all_games.get(game_id)
+            team = game.teams.get_by_id(team_id=team_id)
+            team.name = team_name
+            team.score = score
 
 
 @register_strategy
@@ -92,8 +132,7 @@ class CloseGameStrategy(ScoreboardDataMixin):
     Score gap has to be equal or lower than allowed_gap attribute"""
     title = 'Напряженная концовка 🔥'
 
-    game_id_index = 2
-    finished_game_status = 3
+    finished_game_status = 'Final'
     allowed_gap = 6  # Min value of score gap for game to be recommended
     top_games = 2  # Top 2 closest by score games
 
@@ -107,26 +146,11 @@ class CloseGameStrategy(ScoreboardDataMixin):
 
         """
         params = self.apply_parameters(**kwargs)
+        recommendation = Recommendation(title=self.title)
 
-        recommendation = Recommendation(title=self.title,
-                                        games=None)
-
-        # Get raw information
-        scoreboard = self.get_raw_data_from_provider(**params)
-        # Info about games
-        games_info = scoreboard.game_header.get_dict()
-        all_games = self.process_games_info(Game, games_info)
-
-        # Scores of every team that played
-        teams_scores = scoreboard.line_score.get_dict()
-        # Process teams scores
-        headers = teams_scores['headers']
-        for one_team_score in teams_scores['data']:
-            game_id = one_team_score[self.game_id_index]
-            game_inst = all_games[game_id]
-            # provide all info from api
-            game_inst.fill_score_and_team_name(**dict(zip(headers,
-                                                          one_team_score)))
+        # Get raw information and prepare raw data
+        scoreboard = self.get_raw_data(**params)
+        all_games = self.preprocess_data(Game, scoreboard)
 
         # collect score gaps from all finished games of the day
         score_gaps = defaultdict(list)
@@ -149,13 +173,12 @@ class CloseGameStrategy(ScoreboardDataMixin):
 
 
 @register_strategy
-class PerformanceStrategy(ScoreboardDataMixin):
+class TopIndividualPerformanceStrategy(ScoreboardDataMixin):
     """Find games with impressive individual performance of any player
     Criteria: player scores more or equal than X points"""
+    title = 'Индивидуальные отжиги ⛹️'
 
-    title = 'Индивидульные отжиги ⛹️'
     score_required = 37
-    game_id_index = 2
 
     def execute(self, **kwargs) -> Recommendation:
         """Add info of top performance and then choose
@@ -167,22 +190,10 @@ class PerformanceStrategy(ScoreboardDataMixin):
 
         games_with_top_performance = set()
 
-        # Get raw information
-        scoreboard = self.get_raw_data_from_provider(**params)
-        # Info about games
-        games_info = scoreboard.game_header.get_dict()
-        all_games = self.process_games_info(GameWithTopPerformanceInfo,
-                                            games_info)
-
-        # Fill team names
-        teams_scores = scoreboard.line_score.get_dict()
-        headers = teams_scores['headers']
-        for one_team_score in teams_scores['data']:
-            game_id = one_team_score[self.game_id_index]
-            game_inst = all_games[game_id]
-            # provide all info from api
-            game_inst.fill_score_and_team_name(**dict(zip(headers,
-                                                          one_team_score)))
+        # Get raw information and prepare raw_data
+        scoreboard = self.get_raw_data(**params)
+        all_games = self.preprocess_data(GameWithTopPerformanceInfo,
+                                         scoreboard)
 
         # Team leaders
         team_leaders = scoreboard.team_leaders.get_dict()
@@ -190,10 +201,10 @@ class PerformanceStrategy(ScoreboardDataMixin):
         for top_performer in team_leaders['data']:
             top_performer_dict = dict(zip(headers, top_performer))
             if top_performer_dict['PTS'] >= self.score_required:
-                game_instance = all_games.get(top_performer_dict['GAME_ID'])
-                game_instance.fill_player_performance(**top_performer_dict)
+                game = all_games.get(top_performer_dict['GAME_ID'])
+                game.fill_player_performance(**top_performer_dict)
 
-                games_with_top_performance.add(game_instance)
+                games_with_top_performance.add(game)
 
         recommendation.games = list(games_with_top_performance)
         return recommendation

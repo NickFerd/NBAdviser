@@ -21,7 +21,7 @@ def configure_log_filename():
 
 
 # Environment
-TOKEN = os.environ['NBADVISER_TOKEN']
+TOKEN = os.environ.get('NBADVISER_TOKEN')   # todo think what to do
 try:
     CONTROL_CHAT_ID = os.environ['NBADVISER_CONTROL_CHAT_ID']
 except KeyError:
