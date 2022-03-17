@@ -64,13 +64,11 @@ def nba_api():
     # print(games['headers'])
     # pprint(games)
 
-    # scoreboard_for_yesterday = scoreboardv2.ScoreboardV2(game_date='2022-03-07')
-    # print(dir(scoreboard_for_yesterday))
-    # pprint(scoreboard_for_yesterday.get_dict(), indent=1)
-    #
-    # score = scoreboard_for_yesterday.available.get_dict()
-    # pprint(score)
-    # scores = scoreboard_for_yesterday.line_score.get_dict()
+    scoreboard_for_yesterday = scoreboardv2.ScoreboardV2(game_date='2022-03-14')
+    pprint(scoreboard_for_yesterday.get_dict(), indent=1)
+
+    team_leaders = scoreboard_for_yesterday.team_leaders.get_dict()
+    pprint(team_leaders)
     # games_status = scoreboard_for_yesterday.game_header.get_dict()
     # pprint(games_status)
     # game = scores['data'][0]

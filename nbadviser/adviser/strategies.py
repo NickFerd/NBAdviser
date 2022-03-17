@@ -66,7 +66,6 @@ class ScoreboardDataMixin(StrategyBaseABC, ABC):
     """
 
     @staticmethod
-    @lru_cache(maxsize=5)
     def get_raw_data(**kwargs) -> ScoreboardV2:
         """Get data from ScoreboardV2 endpoint"""
         game_date = kwargs.get('games_date_str')
