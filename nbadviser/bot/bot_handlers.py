@@ -7,13 +7,14 @@ from telegram.ext import CallbackContext
 
 from nbadviser import adviser, config
 from nbadviser.adviser.adviser import Errors
-from nbadviser.bot.utils import check_format
+from nbadviser.bot.utils import check_format, log_ptb_call
 from nbadviser.config import logger
 
 BUTTON = "Топовые матчи игрового дня 🏀"
 HELP_BUTTON = "Помощь"
 
 
+@log_ptb_call
 def start(update: Update, context: CallbackContext):
     """Entry point to menu"""
     keyboard = [
@@ -30,8 +31,10 @@ def start(update: Update, context: CallbackContext):
     )
 
 
+@log_ptb_call
 def help_handler(update: Update, context: CallbackContext):
     """Help button and command /help handler"""
+
     msg = '<b>NBAdviser</b> - бот, который поможет ' \
           'тебе выбрать интересную игру\n\n' \
           '<b>/top</b> - рекомендации за последний игровой день\n' \
@@ -41,6 +44,7 @@ def help_handler(update: Update, context: CallbackContext):
     update.message.reply_text(msg, parse_mode=ParseMode.HTML)
 
 
+@log_ptb_call
 def get_recommendations(update: Update, context: CallbackContext) -> None:
     """Handler for making recommendations"""
 

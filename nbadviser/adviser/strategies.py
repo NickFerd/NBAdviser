@@ -3,7 +3,6 @@
 
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from functools import lru_cache
 from typing import Callable, Any, Dict, Type, Union
 
 from nba_api.stats.endpoints.scoreboardv2 import ScoreboardV2
@@ -22,8 +21,7 @@ def register_strategy(strategy_class: Callable):
 
 class StrategyBaseABC(ABC):
     """Base class for strategy
-    Strategies are used with register_strategy decorator,
-    not intended to be called directly
+    Strategies are used with register_strategy decorator.
     """
 
     @property

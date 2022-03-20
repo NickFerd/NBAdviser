@@ -35,6 +35,6 @@ LOG_LEVEL = 'INFO'
 LOG_ROTATION = '1 week'
 LOR_RETENTION = '1 month'
 logger.add(sink=LOG_FILENAME, level=LOG_LEVEL, rotation=LOG_ROTATION,
-           retention=LOR_RETENTION)
+           retention=LOR_RETENTION, encoding='utf8')
 
 ETC_TIMEZONE = pytz.timezone('US/Eastern')
