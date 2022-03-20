@@ -38,3 +38,5 @@ logger.add(sink=LOG_FILENAME, level=LOG_LEVEL, rotation=LOG_ROTATION,
            retention=LOR_RETENTION, encoding='utf8')
 
 ETC_TIMEZONE = pytz.timezone('US/Eastern')
+
+LINK_FULL_GAMES = 'https://nbareplay.net/'

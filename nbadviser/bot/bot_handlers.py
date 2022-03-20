@@ -8,7 +8,7 @@ from telegram.ext import CallbackContext
 from nbadviser import adviser, config
 from nbadviser.adviser.adviser import Errors
 from nbadviser.bot.utils import check_format, log_ptb_call
-from nbadviser.config import logger
+from nbadviser.config import logger, LINK_FULL_GAMES
 
 BUTTON = "Топовые матчи игрового дня 🏀"
 HELP_BUTTON = "Помощь"
@@ -64,7 +64,10 @@ def get_recommendations(update: Update, context: CallbackContext) -> None:
     recommendations, errors = adviser.get_recommendations()
     handle_strategies_errors(context, errors)
 
-    msg.edit_text(recommendations.to_html(), parse_mode=ParseMode.HTML)
+    additional_text = f'\n<i>Ссылка для просмотра полных матчей</i>:' \
+                      f'\n{LINK_FULL_GAMES}'
+    msg.edit_text(recommendations.to_html() + additional_text,
+                  parse_mode=ParseMode.HTML)
 
 
 def error_handler(update: Update, context: CallbackContext) -> None:
