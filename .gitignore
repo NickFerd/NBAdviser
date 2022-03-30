@@ -9,6 +9,9 @@ __pycache__/
 # IDEA files
 .idea
 
+# My files
+sketches.py
+
 # Distribution / packaging
 .Python
 build/
