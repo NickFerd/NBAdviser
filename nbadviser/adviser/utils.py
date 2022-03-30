@@ -7,13 +7,18 @@ from typing import List, Optional, Union
 from nbadviser.config import ETC_TIMEZONE
 
 
-def get_yesterday_est() -> str:
-    """Convert naive local datetime to EST timezone and return date string
-    in a form YYYY-MM-DD"""
-    naive_now = datetime.datetime.now()
-    est_now = naive_now.astimezone(ETC_TIMEZONE)
-    est_yesterday = est_now - datetime.timedelta(days=1)
-    return str(est_yesterday.date())  # todo refactor
+def get_date_etc_str() -> str:
+    """Get EST timezone datetime and return date string in a form YYYY-MM-DD.
+    Condition: if ETC time hour more or equal than 22 -> return current day
+               else -> return previous day
+    """
+    timedelta_days = 1
+    etc_now = datetime.datetime.now(tz=ETC_TIMEZONE)
+    if etc_now.hour >= 22:
+        timedelta_days = 0
+
+    est_yesterday = etc_now - datetime.timedelta(days=timedelta_days)
+    return str(est_yesterday.date())
 
 
 @dataclass
@@ -132,7 +137,7 @@ class Recommendations:
         if specific_game_date:
             games_date = specific_game_date
         else:
-            games_date = get_yesterday_est()
+            games_date = get_date_etc_str()
 
         template = f'<i>Игровой день: {games_date}</i>\n'
         if not self._contents:

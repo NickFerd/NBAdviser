@@ -7,7 +7,7 @@ from typing import Callable, Any, Dict, Type, Union
 
 from nba_api.stats.endpoints.scoreboardv2 import ScoreboardV2
 
-from nbadviser.adviser.utils import Recommendation, Game, get_yesterday_est, \
+from nbadviser.adviser.utils import Recommendation, Game, get_date_etc_str, \
     GameWithTopPerformanceInfo, Team, Teams
 
 # Easy initialization and registration of strategies
@@ -52,7 +52,7 @@ class StrategyBaseABC(ABC):
         if specific_date:
             game_date_str = specific_date
         else:
-            game_date_str = get_yesterday_est()
+            game_date_str = get_date_etc_str()
 
         params['games_date_str'] = game_date_str
         return params
