@@ -1,5 +1,5 @@
 """Helping functions for bot"""
-
+import time
 from datetime import datetime
 
 import functools
@@ -18,7 +18,7 @@ def check_format(games_date: str):
         return True
 
 
-def log_ptb_call(handler: Callable):
+def access_log(handler: Callable):
     """Decorator for logging a bot handler call
     Intended to be used with python-telegram-bot handlers that take Update and
     CallbackContext objects as positional arguments"""
@@ -26,11 +26,16 @@ def log_ptb_call(handler: Callable):
     @functools.wraps(handler)
     def wrapper(update, context):
         """Wrapper"""
-        user = f'{update.message.from_user.username}, ' \
+        user = f'full_name={update.message.from_user.full_name}, ' \
+               f'username={update.message.from_user.username}, ' \
                f'id={update.message.from_user.id}'
         command = f'{update.message.text}'
-        logger.info(f'Пользователь {user} выполнил команду: {command}')
+
+        start_time = time.time()
         handler(update, context)
+        finish_time = time.time()
+        logger.info(f'User: {user}|Command: {command}|'
+                    f'Execution time: {finish_time-start_time:.3f}')
 
     return wrapper
 
