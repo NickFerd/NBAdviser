@@ -2,6 +2,7 @@
 import datetime
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, fields
+from enum import Enum
 from typing import List, Optional, Union
 
 from nbadviser.config import ETC_TIMEZONE
@@ -57,10 +58,12 @@ class Game(GameABC):
     """Game object to use with data from ScoreboardV2 API endpoint
     but also possible to use with other"""
 
-    def __init__(self, game_id: str, game_status: str, teams: Teams = None,
+    def __init__(self, game_id: str, game_status: str,
+                 game_status_id: int, teams: Teams = None,
                  **kwargs):
         self.game_id = game_id
         self.status = game_status
+        self.status_id = game_status_id
         self.teams = teams
 
     def __repr__(self):
@@ -75,6 +78,11 @@ class Game(GameABC):
     @property
     def description(self):
         return f'{self.teams.visitor.name} - {self.teams.home.name}'
+
+
+class GameStatus(Enum):
+    LIVE = 2
+    FINAL = 3
 
 
 class GameWithTopPerformanceInfo(Game):
@@ -93,6 +101,16 @@ class GameWithTopPerformanceInfo(Game):
     def description(self):
         return f'{", ".join(self.top_performers)} ' \
                f'(<i>{self.teams.visitor.name} - {self.teams.home.name}</i>)'
+
+
+class GameWithScoreInfo(Game):
+    """Game object with info of score in description"""
+
+    @property
+    def description(self):
+        return f'{self.teams.visitor.name} - {self.teams.home.name} ' \
+               f'({self.teams.visitor.score}-{self.teams.home.score}, ' \
+               f'{self.status})'
 
 
 @dataclass

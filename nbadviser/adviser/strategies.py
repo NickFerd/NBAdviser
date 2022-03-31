@@ -8,7 +8,7 @@ from typing import Callable, Any, Dict, Type, Union
 from nba_api.stats.endpoints.scoreboardv2 import ScoreboardV2
 
 from nbadviser.adviser.utils import Recommendation, Game, get_date_etc_str, \
-    GameWithTopPerformanceInfo, Team, Teams
+    GameWithTopPerformanceInfo, Team, Teams, GameWithScoreInfo, GameStatus
 
 # Easy initialization and registration of strategies
 strategies = {}
@@ -91,13 +91,17 @@ class ScoreboardDataMixin(StrategyBaseABC, ABC):
         headers = _data['headers']
         for game_data_list in _data['data']:
             game_data_dict = dict(zip(headers, game_data_list))
+
             game_id = game_data_dict['GAME_ID']
             game_status = game_data_dict['GAME_STATUS_TEXT']
+            game_status_id = game_data_dict['GAME_STATUS_ID']
+
             home_team = Team(team_id=game_data_dict['HOME_TEAM_ID'])
             visitor_team = Team(team_id=game_data_dict['VISITOR_TEAM_ID'])
             playing_teams = Teams(home=home_team, visitor=visitor_team)
 
             game = game_object(game_id=game_id, game_status=game_status,
+                               game_status_id=game_status_id,
                                teams=playing_teams)
             all_games[game.game_id] = game
 
@@ -129,7 +133,6 @@ class CloseGameStrategy(ScoreboardDataMixin):
     Score gap has to be equal or lower than allowed_gap attribute"""
     title = 'Напряженная концовка 🔥'
 
-    finished_game_status = 'Final'
     allowed_gap = 6  # Min value of score gap for game to be recommended
     top_games = 2  # Top 2 closest by score games
 
@@ -152,7 +155,7 @@ class CloseGameStrategy(ScoreboardDataMixin):
         # collect score gaps from all finished games of the day
         score_gaps = defaultdict(list)
         for game in all_games.values():
-            if game.status == self.finished_game_status:  # Only finished games
+            if game.status_id == GameStatus.FINAL.value:  # Only finished games
                 gap = game.score_gap
                 score_gaps[gap].append(game)
 
@@ -205,3 +208,29 @@ class TopIndividualPerformanceStrategy(ScoreboardDataMixin):
 
         recommendation.games = list(games_with_top_performance)
         return recommendation
+
+
+# Strategy that intended to be called directly from Adviser
+# (not using register strategy decorator)
+class LiveGamesStrategy(ScoreboardDataMixin):
+    """Get all active games"""
+    title = 'В прямом эфире 📺'
+
+    def execute(self, **kwargs) -> Recommendation:
+        # Do not feed any params from kwargs initially
+        params = self.apply_parameters()
+        recommendation = Recommendation(title=self.title)
+
+        # Get raw information and prepare raw data
+        scoreboard = self.get_raw_data(**params)
+        all_games = self.preprocess_data(GameWithScoreInfo, scoreboard)
+
+        live_games = []
+        for game in all_games.values():
+            if game.status_id == GameStatus.LIVE.value:
+                live_games.append(game)
+
+        recommendation.games = live_games
+        return recommendation
+
+

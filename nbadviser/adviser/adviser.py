@@ -1,11 +1,11 @@
 """File containing class for managing strategies
 """
 import traceback
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Dict, List, Tuple, Optional, Any, Union
 
 from nbadviser import strategies
-from nbadviser.adviser.strategies import StrategyBaseABC
-from nbadviser.adviser.utils import Error, Recommendations
+from nbadviser.adviser.strategies import StrategyBaseABC, LiveGamesStrategy
+from nbadviser.adviser.utils import Error, Recommendations, Recommendation
 
 Errors = List[Error]
 Advise = Tuple[Recommendations, Errors]
@@ -42,6 +42,18 @@ class Adviser:
                                     label=strategy.__class__.__name__))
 
         return recommendations, errors
+
+    def get_live_games_or_none(self, **kwargs) -> Union[Recommendation, None]:
+        """Get live games or None
+        Exceptions are not forwarded to client"""
+        try:
+            strategy = LiveGamesStrategy()
+            recommendation = strategy.execute(**self._parameters)
+            if not recommendation.games:
+                return
+            return recommendation
+        except Exception as err:
+            return
 
     def set_parameters(self, **kwargs):
         """Set or update if already exists additional parameters that will

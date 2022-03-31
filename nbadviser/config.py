@@ -40,3 +40,4 @@ logger.add(sink=LOG_FILENAME, level=LOG_LEVEL, rotation=LOG_ROTATION,
 ETC_TIMEZONE = pytz.timezone('US/Eastern')
 
 LINK_FULL_GAMES = 'https://nbareplay.net/'
+LINK_STREAMS = 'http://6streams.tv/'

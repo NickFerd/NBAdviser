@@ -8,7 +8,7 @@ from telegram.ext import CallbackContext
 from nbadviser import adviser, config
 from nbadviser.adviser.adviser import Errors
 from nbadviser.bot.utils import check_format, access_log
-from nbadviser.config import logger, LINK_FULL_GAMES
+from nbadviser.config import logger, LINK_FULL_GAMES, LINK_STREAMS
 
 BUTTON = "Топовые матчи игрового дня 🏀"
 HELP_BUTTON = "Помощь"
@@ -68,6 +68,18 @@ def get_recommendations(update: Update, context: CallbackContext) -> None:
                       f'\n{LINK_FULL_GAMES}'
     msg.edit_text(recommendations.to_html() + additional_text,
                   parse_mode=ParseMode.HTML)
+
+    # Additionally check for live games if user required last game day
+    # and send results (if any) in separate message
+    if not games_date:
+        live_games_recommendation = adviser.get_live_games_or_none()
+        if live_games_recommendation:
+            header = '<i>Может быть интересно</i>\n'
+            footer = f'\n<i>Ссылка со стримами в хорошем качестве</i>:' \
+                     f'\n{LINK_STREAMS}'
+            message = header + live_games_recommendation.to_html() + footer
+            update.message.reply_text(message,
+                                      parse_mode=ParseMode.HTML)
 
 
 def error_handler(update: Update, context: CallbackContext) -> None:
