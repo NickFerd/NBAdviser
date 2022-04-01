@@ -67,12 +67,13 @@ class ScoreboardDataMixin(StrategyBaseABC, ABC):
     def get_raw_data(**kwargs) -> ScoreboardV2:
         """Get data from ScoreboardV2 endpoint"""
         game_date = kwargs.get('games_date_str')
-        scoreboard = ScoreboardV2(game_date=game_date)
+        scoreboard = ScoreboardV2(game_date=game_date,
+                                  get_request=True)
         return scoreboard
 
     def preprocess_data(self,
                         game_object: Type[Game], scoreboard: ScoreboardV2) \
-            -> Dict[str, Union[Game, GameWithTopPerformanceInfo]]:
+            -> Dict[str, Game]:
         """Create dict of all games instances for the day and fill with info
         of team names and scores"""
 
@@ -93,7 +94,7 @@ class ScoreboardDataMixin(StrategyBaseABC, ABC):
             game_data_dict = dict(zip(headers, game_data_list))
 
             game_id = game_data_dict['GAME_ID']
-            game_status = game_data_dict['GAME_STATUS_TEXT']
+            game_status = game_data_dict['GAME_STATUS_TEXT'].strip()
             game_status_id = game_data_dict['GAME_STATUS_ID']
 
             home_team = Team(team_id=game_data_dict['HOME_TEAM_ID'])

@@ -41,7 +41,8 @@ def help_handler(update: Update, context: CallbackContext):
           '<b>/top 2022-01-12</b>  - за конкретный день\n\n' \
           'Обратная связь: https://t.me/NickFerd'
 
-    update.message.reply_text(msg, parse_mode=ParseMode.HTML)
+    update.message.reply_text(msg, parse_mode=ParseMode.HTML,
+                              disable_web_page_preview=True)
 
 
 @access_log
@@ -67,19 +68,21 @@ def get_recommendations(update: Update, context: CallbackContext) -> None:
     additional_text = f'\n<i>Ссылка для просмотра полных матчей</i>:' \
                       f'\n{LINK_FULL_GAMES}'
     msg.edit_text(recommendations.to_html() + additional_text,
-                  parse_mode=ParseMode.HTML)
+                  parse_mode=ParseMode.HTML,
+                  disable_web_page_preview=True)
 
     # Additionally check for live games if user required last game day
     # and send results (if any) in separate message
     if not games_date:
         live_games_recommendation = adviser.get_live_games_or_none()
         if live_games_recommendation:
-            header = '<i>Может быть интересно</i>\n'
+            header = '<i>Может быть интересно:</i>\n'
             footer = f'\n<i>Ссылка со стримами в хорошем качестве</i>:' \
                      f'\n{LINK_STREAMS}'
             message = header + live_games_recommendation.to_html() + footer
             update.message.reply_text(message,
-                                      parse_mode=ParseMode.HTML)
+                                      parse_mode=ParseMode.HTML,
+                                      disable_web_page_preview=True)
 
 
 def error_handler(update: Update, context: CallbackContext) -> None:
