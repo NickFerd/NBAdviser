@@ -3,9 +3,12 @@ import datetime
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, fields
 from enum import Enum
-from typing import List, Optional, Union
+from typing import List, Optional, Union, TypeVar
 
 from nbadviser.config import ETC_TIMEZONE
+
+# Create a generic variable that can be 'Parent', or any subclass.
+AnyGame = TypeVar('AnyGame', bound='Game')
 
 
 def get_date_etc_str() -> str:

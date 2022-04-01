@@ -3,12 +3,13 @@
 
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from typing import Callable, Any, Dict, Type, Union
+from typing import Callable, Any, Dict, Type, TypeVar
 
 from nba_api.stats.endpoints.scoreboardv2 import ScoreboardV2
 
 from nbadviser.adviser.utils import Recommendation, Game, get_date_etc_str, \
-    GameWithTopPerformanceInfo, Team, Teams, GameWithScoreInfo, GameStatus
+    GameWithTopPerformanceInfo, Team, Teams, GameWithScoreInfo, GameStatus, \
+    AnyGame
 
 # Easy initialization and registration of strategies
 strategies = {}
@@ -71,9 +72,8 @@ class ScoreboardDataMixin(StrategyBaseABC, ABC):
                                   get_request=True)
         return scoreboard
 
-    def preprocess_data(self,
-                        game_object: Type[Game], scoreboard: ScoreboardV2) \
-            -> Dict[str, Game]:
+    def preprocess_data(self, game_object: Type[AnyGame],
+                        scoreboard: ScoreboardV2) -> Dict[str, AnyGame]:
         """Create dict of all games instances for the day and fill with info
         of team names and scores"""
 
