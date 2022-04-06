@@ -21,7 +21,7 @@ def configure_log_filename():
 
 
 # Environment
-TOKEN = os.environ.get('NBADVISER_TOKEN')   # todo think what to do
+TOKEN = os.environ.get('NBADVISER_TOKEN')
 try:
     CONTROL_CHAT_ID = os.environ['NBADVISER_CONTROL_CHAT_ID']
 except KeyError:
@@ -32,10 +32,9 @@ else:
 # Logging
 LOG_FILENAME = configure_log_filename()
 LOG_LEVEL = 'INFO'
-LOG_ROTATION = '1 week'
-LOR_RETENTION = '1 month'
+LOG_ROTATION = '1 month'
 logger.add(sink=LOG_FILENAME, level=LOG_LEVEL, rotation=LOG_ROTATION,
-           retention=LOR_RETENTION, encoding='utf8')
+           encoding='utf8')
 
 ETC_TIMEZONE = pytz.timezone('US/Eastern')
 
