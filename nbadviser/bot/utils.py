@@ -8,7 +8,7 @@ from typing import Callable
 from nbadviser.config import logger
 
 
-def check_format(games_date: str):
+def check_date_format(games_date: str):
     """Check that given string in format of YYYY-MM-DD"""
     try:
         datetime.strptime(games_date, '%Y-%m-%d')
@@ -18,7 +18,7 @@ def check_format(games_date: str):
         return True
 
 
-def access_log(handler: Callable):
+def log_access(handler: Callable):
     """Decorator for logging a bot handler call
     Intended to be used with python-telegram-bot handlers that take Update and
     CallbackContext objects as positional arguments"""

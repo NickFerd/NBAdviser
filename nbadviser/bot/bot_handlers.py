@@ -7,18 +7,18 @@ from telegram.ext import CallbackContext
 
 from nbadviser import adviser, config
 from nbadviser.adviser.adviser import Errors
-from nbadviser.bot.utils import check_format, access_log
+from nbadviser.bot.utils import check_date_format, log_access
 from nbadviser.config import logger, LINK_FULL_GAMES, LINK_STREAMS
 
-BUTTON = "Топовые матчи игрового дня 🏀"
+TOP_GAMES_BUTTON = "Топовые матчи игрового дня 🏀"
 HELP_BUTTON = "Помощь"
 
 
-@access_log
+@log_access
 def start(update: Update, context: CallbackContext):
     """Entry point to menu"""
     keyboard = [
-        [BUTTON],
+        [TOP_GAMES_BUTTON],
         [HELP_BUTTON]
     ]
     message = 'Подберу интересные матчи прошедшего игрового дня, ' \
@@ -31,7 +31,7 @@ def start(update: Update, context: CallbackContext):
     )
 
 
-@access_log
+@log_access
 def help_handler(update: Update, context: CallbackContext):
     """Help button and command /help handler"""
 
@@ -45,7 +45,7 @@ def help_handler(update: Update, context: CallbackContext):
                               disable_web_page_preview=True)
 
 
-@access_log
+@log_access
 def get_recommendations(update: Update, context: CallbackContext) -> None:
     """Handler for making recommendations"""
 
@@ -56,7 +56,7 @@ def get_recommendations(update: Update, context: CallbackContext) -> None:
     games_date = None
     if context.args:
         games_date_unchecked = context.args[0]  # Always look at first argument
-        if check_format(games_date_unchecked):
+        if check_date_format(games_date_unchecked):
             games_date = games_date_unchecked
 
     # Set additional parameters

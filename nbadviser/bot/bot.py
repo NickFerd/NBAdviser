@@ -12,24 +12,22 @@ def run(token: str):
     updater = Updater(token=token)
     dispatcher = updater.dispatcher
 
-    # Adding handlers
     dispatcher.add_handler(CommandHandler('start', bot_handlers.start))
     dispatcher.add_handler(
-        MessageHandler(Filters.regex(f'^{bot_handlers.BUTTON}$'),
+        MessageHandler(Filters.regex(f'^{bot_handlers.TOP_GAMES_BUTTON}$'),
                        bot_handlers.get_recommendations)
+    )
+    dispatcher.add_handler(
+        CommandHandler('top', bot_handlers.get_recommendations)
     )
     dispatcher.add_handler(
         MessageHandler(Filters.regex(f'^{bot_handlers.HELP_BUTTON}'),
                        bot_handlers.help_handler)
     )
-    dispatcher.add_handler(CommandHandler('top',
-                                          bot_handlers.get_recommendations))
-    dispatcher.add_handler(CommandHandler('help',
-                                          bot_handlers.help_handler))
+    dispatcher.add_handler(
+        CommandHandler('help', bot_handlers.help_handler)
+    )
     dispatcher.add_error_handler(error_handler)
 
-    # Starting Bot
     updater.start_polling()
-
-    # Cleanup
     updater.idle()
